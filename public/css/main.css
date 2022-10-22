@@ -307,6 +307,10 @@ input[type='text']:not(class='van-field__control') {
   background: url('../img/app-icon/dormitory.png') no-repeat center;
   background-size: cover;
 }
+.app-design-examine2-icon {
+  background: url('../img/app-icon/design-examine2.png') no-repeat center;
+  background-size: cover;
+}
 
 .map-address-detail {
   line-height: 1.5;

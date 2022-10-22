@@ -301,6 +301,15 @@ export default new Router({
           hidden: true,
           component: () => import('../views/holiday/plan-holiday.vue')
         },
+        // 生产抢修用餐申请
+        {
+          path: '/meal',
+          name: '生产抢修用餐申请',
+          meta: {
+            background: 'design-examine2'
+          },
+          component: () => import('../views/meal/index.vue')
+        }
       ]
     }
   ]

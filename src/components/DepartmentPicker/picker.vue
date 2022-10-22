@@ -50,7 +50,7 @@
         >
         <van-col
           class="item-operate"
-          span="8"
+          span="6"
           :class="[index + 1 != showList.deptList.length ? 'picker-item-bottom' : '']"
           @click="showNextDept(item)"
           >下级</van-col
@@ -87,6 +87,16 @@ export default {
       default: function() {
         return []
       }
+    },
+    // 所要查询的公司范围(例如：查华劲人纸品和赣州纸业，则传"011,004"，查询本公司代码为"1")
+    companyCode: {
+      type: String,
+      default: () => ''
+    },
+    // 根据部门关键字查询范围(例如：只查询带"厂"字部门及其下级，则传"厂")
+    deptKeyWord: {
+      type: String,
+      default: () => ''
     }
   },
   data() {
@@ -182,6 +192,15 @@ export default {
               }
               return item
             })
+            if (this.deptKeyWord && data.deptList.length > 0) {
+              let chooseArr = []
+              data.deptList.forEach(item => {
+                if (item.desc.indexOf(this.deptKeyWord) !== -1) {
+                  chooseArr.push(item)
+                }
+              })
+              data.deptList = chooseArr
+            }
             this.listArr.push(data)
             this.isLoading = false
           } else {
@@ -199,17 +218,30 @@ export default {
           let errCode = res.data.errorCode
           if (errCode) {
             let data = res.data.data || []
+            console.log(data)
             data.deptList = (data.deptList || []).map(item => {
               if (this.selectedDepartmentIds.indexOf(item.fdId) !== -1) {
                 item.picked = true
               }
               return item
             })
-            if (!this.navList[0].descShort && data.length !== 0) {
-              this.navList[0].descShort = (data.deptList[0].desc || '').split('-')[0]
-              this.currentCompany = this.navList[0].descShort
-            }
             this.listArr.push(data)
+            if (this.companyCode && data.deptList.length > 0) {
+              let chooseArr = []
+              let arr = []
+              arr.push(data)
+              arr[arr.length - 1].deptList.forEach(item => {
+                if (this.companyCode.indexOf(item.company) !== -1) {
+                  chooseArr.push(item)
+                }
+              })
+              this.listArr[this.listArr.length - 1].deptList = chooseArr
+            }
+            // if (!this.navList[0].descShort && data.length !== 0) {
+            //   this.navList[0].descShort = (data.deptList[0].desc || '').split('-')[0]
+            //   this.currentCompany = this.navList[0].descShort
+            // }
+            console.log(data)
             this.isLoading = false
           } else {
             dAlert(res.data.msg || '查询错误！')
@@ -220,9 +252,10 @@ export default {
   },
   mounted() {
     this.listArr = []
-    this.getList()
     this.selectedDepartmentIds = this.selected.map(item => item.fdId)
+    console.log(this.selectedDepartmentIds)
     this.selectedDepartments = this.selected || []
+    this.getList()
   },
   components: {
     CurrentSelectNav
@@ -231,6 +264,7 @@ export default {
 </script>
 
 <style lang="less" scoped>
+  @list-item-height: 42px;
 .position-picker {
   position: fixed;
   top: 0;
@@ -243,6 +277,9 @@ export default {
   .btn-link {
     text-decoration: none;
     color: #2196f3;
+  }
+  .select-control-row {
+    padding: 10px 0;
   }
 
   .picker-header {
@@ -275,12 +312,16 @@ export default {
 
       .item-name {
         padding-right: 20px;
+        height: @list-item-height;
+        line-height: @list-item-height;
       }
 
       .item-operate {
         color: #2196f3;
         padding-left: 10px;
         border-left: 1px solid #efefef;
+        height: @list-item-height;
+        line-height: @list-item-height;
       }
 
       &.selected {

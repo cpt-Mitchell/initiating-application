@@ -158,6 +158,11 @@ export default {
     companyCode: {
       type: String,
       default: () => ''
+    },
+    // 根据部门关键字查询范围(例如：只查询带"厂"字部门及其下级，则传"厂")
+    deptKeyWord: {
+      type: String,
+      default: () => ''
     }
   },
   data() {
@@ -285,19 +290,24 @@ export default {
     },
     // 选择人员
     usersSelect(item = {}) {
-      let flag = false,
-        index = -1
-      this.selectedUsers.forEach((it, i) => {
-        if (item.id !== it.id) {
-          flag = true
-          index = i
-        }
-      })
       if (this.multiple) {
+        let flag = true,
+          index = -1
+        if (this.selectedUsers.length > 0) {
+          this.selectedUsers.forEach((it, i) => {
+            if (item.id === it.id) {
+              flag = false
+              index = i
+            }
+          })
+        } else {
+          flag = true
+          index = 0
+        }
         item.picked = flag
         if (flag) {
           this.selectedUsers.push(item)
-        } else if (index !== -1) {
+        } else {
           this.selectedUsers.splice(index, 1)
         }
       } else {
@@ -370,7 +380,7 @@ export default {
         .then(res => {
           let errCode = res.data.errorCode
           if (errCode) {
-            let data = res.data.data || []
+            let data = JSON.parse(JSON.stringify(res.data.data)) || []
             data.employeeList = (data.employeeList || []).map((item, i) => {
               item.supvLvlId = data.employees[i].supvLvlId
               if (this.selectedUserIds.indexOf(item.id) !== -1) {
@@ -378,6 +388,15 @@ export default {
               }
               return item
             })
+            if (this.deptKeyWord && data.deptList.length > 0) {
+              let chooseArr = []
+              data.deptList.forEach(item => {
+                if (item.desc.indexOf(this.deptKeyWord) !== -1) {
+                  chooseArr.push(item)
+                }
+              })
+              data.deptList = chooseArr
+            }
             if (!this.navList[0].descShort && data.length !== 0) {
               this.navList[0].descShort = (data.deptList[0].desc || '').split('-')[0]
               this.currentCompany = this.navList[0].descShort
@@ -401,8 +420,19 @@ export default {
         .then(res => {
           let errCode = res.data.errorCode
           if (errCode) {
-            let data = res.data.data || []
+            let data = JSON.parse(JSON.stringify(res.data.data)) || []
             this.listArr.push(data)
+            if (this.companyCode && data.deptList.length > 0) {
+              let chooseArr = []
+              let arr = []
+              arr.push(data)
+              arr[arr.length - 1].deptList.forEach(item => {
+                if (this.companyCode.indexOf(item.company) !== -1) {
+                  chooseArr.push(item)
+                }
+              })
+              this.listArr[this.listArr.length - 1].deptList = chooseArr
+            }
             this.isLoading = false
           } else {
             dAlert(res.data.msg || '查询错误！')

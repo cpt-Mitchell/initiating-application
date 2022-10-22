@@ -4,7 +4,7 @@ import { API } from '@/api'
 import vuet from '@/vuet'
 
 const fetch = axios.create({
-  baseURL: process.env.VUE_APP_BASE_API || '',
+  baseURL: process.env.VUE_APP_BASE_API2 || '',
   timeOut: 5000
   // onUploadProgress: p=> {
   //     console.log(p)
@@ -19,7 +19,7 @@ fetch.interceptors.request.use(
     //   config.headers.common['Authorization'] = vuet.modules.home.token || vuet.modules.home._LOGINUSER_.token
     // }
     config.headers.common['Authorization'] =
-      'eyJhbGciOiJSUzI1NiJ9.eyJ1c2VySWQiOiJBMjAyNDk0IiwidXNlcm5hbWUiOiLpu47mmIznm5siLCJleHAiOjE2Nzk5MTkyNzZ9.ehkb0X9nSVmPxbpmQooUTCWY7VqY_6-K-I6t8jYx60tv85h3qVfMnseCeaazcCwt-Jxk9zBVegP3bFmNoO5HKQ4nafuJZaBOFdgjph_nm7GqS-VrkYbM1d1abGHoTJbLZxJT-2Mho6ZZ5Wp6KqtAlixkBZkCb76m_R3bmiddxc0'
+      'eyJhbGciOiJSUzI1NiJ9.eyJ1c2VySWQiOiJBMjAyNDk0IiwidXNlcm5hbWUiOiLpu47mmIznm5siLCJleHAiOjE2Nzk2NTE0OTZ9.XHsiMx9a53jvHcNhr_ufyLFWoRuO1Wfq5XWpZkuGFkR4Kz9ICXSgvkGb17vK3eJRyQ8kZKnoiE04FYTSewWBUJ4tPa8E26ZOjxtW5HtIKp9RlXMU-c9h3Mee660OWGntqA94mLBwytTowZLyRn0npcFl006d2SgSPgxDOMIguzE'
     // config.headers.common['Authorization'] =
     //   'eyJhbGciOiJSUzI1NiJ9.eyJ1c2VySWQiOiJBMjAyNDc0IiwidXNlcm5hbWUiOiLmnY7ojaPlvrciLCJleHAiOjE2NjUxODAzODl9.SvQMkb2pdo8GEcWmmkyxOjAkrJkHh2AZcoo3S4dwiRjaDFpSreaj8DAEZWT0XOUncl3Bx74i4XZBi8brIVODDJOzIMPHdfyBL5iU2w_495il9v1R3FAPMfXPoEAWnvbV_W4n2xujUaJfL3bxoDF8YnTe4hHgSsjLlS6S0V7seeQ'
     return config

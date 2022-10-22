@@ -3,6 +3,8 @@
     <div class="user-picker-container" v-show="pickerShow">
       <picker
         v-if="pickerDisplay"
+        :deptKeyWord="deptKeyWord"
+        :companyCode="companyCode"
         :currentCompany="currentCompany"
         :searchBelongCompany="searchBelongCompany"
         :justWorker="justWorker"
@@ -52,6 +54,14 @@ export default {
     display: {
       type: Boolean,
       required: true
+    },
+    companyCode: {
+      type: String,
+      default: () => ''
+    },
+    deptKeyWord: {
+      type: String,
+      default: () => ''
     }
   },
   data() {

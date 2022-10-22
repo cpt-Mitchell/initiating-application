@@ -99,7 +99,12 @@ export const API = {
   unableList: 'platform/hwagain-annual-holiday/plan/unable/list',
   deductionGet: 'platform/hwagain-annual-holiday/person/deduction/apply/getByDing',
   deductionSave: 'platform/hwagain-annual-holiday/person/deduction/apply/save',
-  filesSave: 'platform/hwagain-annual-holiday/files/save'
+  filesSave: 'platform/hwagain-annual-holiday/files/save',
+
+  // 生产抢修用餐申请
+  getDept: 'order/omRepair/findDeptName',
+  getMealTypeOption: 'order/omRepair/findMealType',
+  postMealApply: 'order/omRepair/save'
 }
 
 export default {

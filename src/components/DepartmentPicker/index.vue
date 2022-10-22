@@ -1,9 +1,17 @@
 <template>
-<transition name="slideup">
-  <div class="department-picker-container" v-show="pickerShow">
-    <picker v-if="pickerDisplay" :selected="selected" :multiple="multiple" @close="pickerShow=false" @submit="getResult"></picker>
-  </div>
-</transition>
+  <transition name="slideup">
+    <div class="department-picker-container" v-show="pickerShow">
+      <picker
+        v-if="pickerDisplay"
+        :selected="selected"
+        :multiple="multiple"
+        :companyCode="companyCode"
+        :deptKeyWord="deptKeyWord"
+        @close="pickerShow = false"
+        @submit="getResult"
+      ></picker>
+    </div>
+  </transition>
 </template>
 
 <script>
@@ -12,19 +20,29 @@ export default {
   props: {
     multiple: {
       type: Boolean,
-      default: function () {
+      default: function() {
         return false
       }
     },
     selected: {
       type: Array,
-      default: function () {
+      default: function() {
         return []
       }
     },
     display: {
       type: Boolean,
       required: true
+    },
+    // 所要查询的公司范围(例如：查华劲人纸品和赣州纸业，则传"011,004"，查询本公司代码为"1")
+    companyCode: {
+      type: String,
+      default: () => ''
+    },
+    // 根据部门关键字查询范围(例如：只查询带"厂"字部门及其下级，则传"厂")
+    deptKeyWord: {
+      type: String,
+      default: () => ''
     }
   },
   data() {
