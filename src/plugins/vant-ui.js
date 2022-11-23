@@ -23,7 +23,8 @@ import {
   Dialog,
   Stepper,
   Picker,
-  Tag
+  Tag,
+  NoticeBar
 } from 'vant'
 export default class VantUI {
   init(_vue) {
@@ -52,5 +53,6 @@ export default class VantUI {
     _vue.use(Toast)
     _vue.use(Dialog)
     _vue.use(Tag)
+    _vue.use(NoticeBar)
   }
 }

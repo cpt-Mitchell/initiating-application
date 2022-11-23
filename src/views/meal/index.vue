@@ -70,7 +70,7 @@
           placeholder="请选择抢修工段"
           type="text"
           readonly
-          v-model="form.position"
+          v-model="form.postName"
           label="抢修工段"
         />
         <van-field placeholder="请输入" type="text" v-model="form.deviceName" label="抢修设备" />
@@ -119,15 +119,33 @@
             <div
               style="height: 88px; display: flex; flex-direction: column; align-items: center; justify-content: space-around;"
             >
-              <div>
-                <van-button size="mini" type="info" @click="changePerson1">
+              <div style="width: 100%">
+                <van-button v-if="!text1" size="mini" type="info" @click="changePerson1">
                   选择抢修人员
                 </van-button>
+                <van-notice-bar
+                  style="height: 30px"
+                  color="#1989fa"
+                  background="#ecf9ff"
+                  @click="changePerson1"
+                  v-else
+                  scrollable
+                  :text="text1"
+                />
               </div>
-              <div>
-                <van-button size="mini" type="info" @click="changePerson2">
+              <div style="width: 100%">
+                <van-button v-if="!text2" size="mini" type="info" @click="changePerson2">
                   选择抢修人员
                 </van-button>
+                <van-notice-bar
+                  style="height: 30px"
+                  color="#1989fa"
+                  background="#ecf9ff"
+                  @click="changePerson2"
+                  v-else
+                  scrollable
+                  :text="text2"
+                />
               </div>
             </div>
           </van-col>
@@ -159,14 +177,7 @@
         />
         <van-field v-model="form.remark" type="textarea" label="备注" placeholder="请填写备注" rows="1" autosize />
       </van-cell-group>
-      <department-picker
-        :deptKeyWord="'厂'"
-        :companyCode="'004,008'"
-        :selected="applyPosition.code ? [applyPosition] : []"
-        :display="positionPickerDisplay"
-        @close="closePositionPicker"
-        @result="getPositionResultHandle"
-      ></department-picker>
+      <!-- 选择部门 -->
       <department-picker
         :deptKeyWord="'厂'"
         :companyCode="'004,008'"
@@ -175,6 +186,14 @@
         @close="closeDeptPicker"
         @result="getDeptResultHandle"
       ></department-picker>
+      <!-- 选择工段 -->
+      <section-picker
+        :deptCode="deptId"
+        :selected="applyPosition.code ? [applyPosition] : []"
+        :display="positionPickerDisplay"
+        @close="closePositionPicker"
+        @result="getPositionResultHandle"
+      ></section-picker>
       <user-picker
         :multiple="true"
         :deptKeyWord="'厂'"
@@ -217,7 +236,7 @@
 import Footbar from '@/components/Footbar'
 import UserPicker from '@/components/UserPicker'
 import DepartmentPicker from '@/components/DepartmentPicker'
-import PositionPicker from '@/components/PositionPicker'
+import SectionPicker from '@/components/SectionPicker'
 import * as DingTalkApi from 'dingtalk-jsapi'
 import request from '@/utils/request'
 import rest from '@/utils/httpUtil'
@@ -243,14 +262,17 @@ export default {
       applyUser2: [],
       applyDept: {},
       applyPosition: {},
+      deptId: '',
       isUploading: false,
+      text1: '',
+      text2: '',
       form: {
         applyDate: '',
         applyicant: '',
         mealType: '',
         deptName: '',
         deptId: '',
-        position: '',
+        postName: '',
         gx: [],
         jx: [],
         gxNumber: '',
@@ -296,23 +318,24 @@ export default {
     }
   },
   watch: {
-    'form.beginDate'(val) {
-      if (val && this.form.endDate) {
-        this.getLeaveDays(val, this.form.endDate)
-      }
-    },
-    'form.endDate'(val) {
-      if (val && this.form.beginDate) {
-        this.getLeaveDays(this.form.beginDate, val)
-      }
-    }
+    // 'form.beginDate'(val) {
+    //   if (val && this.form.endDate) {  
+    //     this.getLeaveDays(val, this.form.endDate)
+    //   }
+    // },
+    // 'form.endDate'(val) {
+    //   if (val && this.form.beginDate) {
+    //     this.getLeaveDays(this.form.beginDate, val)
+    //   }
+    // }
   },
   methods: {
     changeDept() {
       this.deptPickerDisplay = true
     },
     changePosition() {
-      if (this.form.deptName) {
+      if (this.form.deptName && this.form.deptId) {
+        this.deptId = this.form.deptId
         this.positionPickerDisplay = true
       } else {
         dAlert('请先选择抢修部门')
@@ -350,10 +373,14 @@ export default {
     closePositionPicker() {
       this.positionPickerDisplay = false
     },
+    // 获取工段
     getPositionResultHandle(result) {
-      let position = result.departments.length !== 0 ? result.departments[0] : {}
-      this.applyPosition = Object.assign({}, position)
-      this.form.position = this.applyPosition.descShort
+      let chooseArr = result.departments.length !== 0 ? result.departments[0] : {}
+      this.form.postName = chooseArr.name
+      this.form.postId = chooseArr.code
+      // let position = result.departments.length !== 0 ? result.departments[0] : {}
+      // this.applyPosition = Object.assign({}, position)
+      // this.form.position = this.applyPosition.descShort
     },
     getDeptResultHandle(result) {
       let dept = result.departments.length !== 0 ? result.departments[0] : {}
@@ -370,27 +397,35 @@ export default {
       this.form.jx = []
       this.applyUser1 = result.users || []
       console.log(this.applyUser1)
+      this.text1 = ''
+      let textArr = []
       if (this.applyUser1.length > 0) {
         this.applyUser1.forEach(item => {
           let arr = {}
+          textArr.push(item.name)
           arr.userName = item.name
           arr.userCode = item.id
           this.form.jx.push(arr)
         })
       }
+      this.text1 = textArr.join(',')
     },
     getUserResultHandle2(result) {
       this.form.gx = []
       this.applyUser2 = result.users || []
       console.log(this.applyUser2)
+      this.text2 = ''
+      let textArr = []
       if (this.applyUser2.length > 0) {
         this.applyUser2.forEach(item => {
           let arr = {}
+          textArr.push(item.name)
           arr.userName = item.name
           arr.userCode = item.id
           this.form.gx.push(arr)
         })
       }
+      this.text2 = textArr.join(',')
     },
     changePerson1() {
       this.userPickerDisplay1 = true
@@ -430,20 +465,20 @@ export default {
       this.form.gxNumber = Number(this.form.gxNumber1 || 0) + Number(this.form.gxNumber2 || 0)
       this.form.jxNumber = Number(this.form.jxNumber1 || 0) + Number(this.form.jxNumber2 || 0)
       console.log(this.form)
-      return
       if (!this.form.gxNumber && !this.form.jxNumber) {
         dAlert('请录入用餐份数')
       } else if (
         !this.form.mealType ||
         !this.form.deptName ||
-        !this.form.position ||
+        !this.form.postName ||
         !this.form.dinnerPlace ||
         !this.form.fdDate ||
-        !this.form.deviceName
+        !this.form.deviceName ||
+        !this.form.postId
       ) {
         dAlert('请检查是否录入完整再进行提交')
       } else {
-        this.$dConfirm('确认保存当前数据吗？', () => {
+        this.$dConfirm('确认提交当前数据吗？', () => {
           this.doSubmit()
         })
       }
@@ -456,9 +491,13 @@ export default {
         .post(`${API.postMealApply}`, this.form)
         .then(res => {
           this.isLoading = false
-          dAlert(res.data.msg, () => {
-            that.$router.back()
-          })
+          if (res.data.success) {
+            dAlert(res.data.msg, () => {
+              that.$router.back()
+            })
+          } else {
+            dAlert(res.data.msg)
+          }
         })
         .catch(errr => (this.isLoading = false))
     }
@@ -468,7 +507,7 @@ export default {
     UserPicker,
     DevMockUser,
     DepartmentPicker,
-    PositionPicker
+    SectionPicker
   }
 }
 </script>
